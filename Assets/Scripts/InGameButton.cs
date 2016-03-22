@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InGameButton : MonoBehaviour 
+[RequireComponent (typeof (Animator))]
+[RequireComponent (typeof (Collider))]
+public class InGameButton : MonoBehaviour, IInGameInput
 {
 	public virtual void OnClick ()
 	{
