@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent (typeof (Animator))]
 [RequireComponent (typeof (Collider))]
-public class InGameLever : MonoBehaviour, IInGameInput
+public class InGameSwitch : MonoBehaviour, IInGameInput
 {
-	public string valueName;
+	public Transform shaft;
+	public Vector3 startPoint;
+	public Vector3 endPoint;
 
 	[System.Serializable]public enum Axis
 	{
@@ -55,11 +56,14 @@ public class InGameLever : MonoBehaviour, IInGameInput
 	{
 		get
 		{
-			return GetComponent<Animator> ().GetFloat (valueName);
+			float x = Mathf.InverseLerp (startPoint.x, endPoint.x, shaft.localPosition.x);
+			float y = Mathf.InverseLerp (startPoint.y, endPoint.y, shaft.localPosition.y);
+			float z = Mathf.InverseLerp (startPoint.z, endPoint.z, shaft.localPosition.z);
+			return new Vector3 (x, y, z).magnitude;
 		}
 		private set
 		{
-			GetComponent<Animator> ().SetFloat (valueName, value);
+			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, value);
 		}
 	}
 	public float floatDelay;
