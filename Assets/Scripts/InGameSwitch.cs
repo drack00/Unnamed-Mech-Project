@@ -49,7 +49,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			return _planarPoints;
 		}
 	}
-
+	public float floatDefault;
 	public float floatMin;
 	public float floatMax;
 	public float floatValue
@@ -66,14 +66,37 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, value);
 		}
 	}
-	public float floatDelay;
-	public float floatDefault;
-	public bool resetOnRelease;
-	public bool gradualChange;
 	private float _floatValue;
-	private IEnumerator MoveLever ()
+	public bool gradualChange;
+	public float floatSpeed;
+	public enum Reset
 	{
-		while(Player.singleton.holdingFire1)
+		None,
+		Instant,
+		Gradual
+	}
+	public Reset reset;
+	public float floatResetSpeed;
+	private bool releventControl
+	{
+		get
+		{
+			return 	(control == Control.Fire1 && Player.singleton.fire1) || 
+					(control == Control.Fire2 && Player.singleton.fire2);
+		}
+	}
+	private GameObject releventReticle
+	{
+		get
+		{
+			if(control == Control.Fire1)return Player.singleton.reticle1;
+			if(control == Control.Fire2)return Player.singleton.reticle2;
+			return null;
+		}
+	}
+	private IEnumerator MoveSwitch ()
+	{
+		while(releventControl)
 		{
 			if (gradualChange)_floatValue = GetCursorPositionValue ();
 			else floatValue = GetCursorPositionValue ();
@@ -87,7 +110,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		float value = 0.0f;
 
 		//planar intersection
-		Ray ray = new Ray (Camera.main.transform.position, Camera.main.transform.forward);
+		Ray ray = new Ray (releventReticle.transform.position, releventReticle.transform.TransformDirection(Vector3.forward));
 		Plane plane = new Plane (planarPoints [0], planarPoints [1], planarPoints [2]);
 		float rayDistance;
 		plane.Raycast (ray, out rayDistance);
@@ -128,17 +151,23 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		return value;
 	}
 
-	public virtual void OnClick ()
+	private Control control;
+	public Control GetControl ()
 	{
-		StartCoroutine (MoveLever ());
+		return control;
+	}
+	public virtual void OnClick (Control _control)
+	{
+		control = _control;
+
+		StartCoroutine (MoveSwitch ());
 	}
 	public virtual void OnRelease ()
 	{
-		if (resetOnRelease) 
-		{
-			if (gradualChange)_floatValue = floatDefault;
-			else floatValue = floatDefault;
-		}
+		control = Control.None;
+
+		if (reset == Reset.Gradual)_floatValue = floatDefault;
+		else if(reset == Reset.Instant)floatValue = floatDefault;
 	}
 
 	void Start ()
@@ -147,6 +176,13 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	}
 	void Update ()
 	{
-		if (gradualChange)floatValue = Mathf.Lerp (floatValue, _floatValue, floatDelay * Time.deltaTime);
+		if(releventControl)
+		{
+			if(gradualChange)floatValue = Mathf.Lerp (floatValue, _floatValue, floatSpeed * Time.deltaTime);
+		}
+		else
+		{
+			if(reset == Reset.Gradual)floatValue = Mathf.Lerp (floatValue, _floatValue, floatResetSpeed * Time.deltaTime);
+		}
 	}
 }
