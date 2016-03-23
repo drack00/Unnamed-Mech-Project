@@ -15,8 +15,18 @@ public class Player : MonoBehaviour
 	{
 		get
 		{
-			float x = Input.GetAxis ("Horizontal");
-			float y = Input.GetAxis ("Vertical");
+			float x = Input.GetAxis ("Horizontal1");
+			float y = Input.GetAxis ("Vertical1");
+
+			return new Vector2 (x, y);
+		}
+	}
+	public Vector2 analog2
+	{
+		get
+		{
+			float x = Input.GetAxis ("Horizontal2");
+			float y = Input.GetAxis ("Vertical2");
 
 			return new Vector2 (x, y);
 		}
@@ -26,16 +36,6 @@ public class Player : MonoBehaviour
 		get
 		{
 			return Input.GetButton ("Fire1");
-		}
-	}
-	public Vector2 analog2
-	{
-		get
-		{
-			float x = Input.GetAxis ("Horizontal");
-			float y = Input.GetAxis ("Vertical");
-
-			return new Vector2 (x, y);
 		}
 	}
 	public bool fire2
@@ -64,8 +64,8 @@ public class Player : MonoBehaviour
 	void Update ()
 	{
 		if(analog1 != Vector2.zero)OnAnalog1 ();
-		if(Input.GetButtonDown ("Fire1"))OnFire1 ();
 		if(analog2 != Vector2.zero)OnAnalog2 ();
+		if(Input.GetButtonDown ("Fire1"))OnFire1 ();
 		if(Input.GetButtonDown ("Fire2"))OnFire2 ();
 	}
 		
@@ -73,6 +73,11 @@ public class Player : MonoBehaviour
 	{
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.up, analog1.x);
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.right, -1 * analog1.y);
+	}
+	private void OnAnalog2 ()
+	{
+		reticle2.transform.RotateAround (reticle2.transform.position, transform.up, analog2.x);
+		reticle2.transform.RotateAround (reticle2.transform.position, transform.right, analog2.y);
 	}
 	private void OnFire1 ()
 	{
@@ -89,11 +94,6 @@ public class Player : MonoBehaviour
 				}
 			}
 		}
-	}
-	private void OnAnalog2 ()
-	{
-		reticle2.transform.RotateAround (reticle2.transform.position, transform.up, analog2.x);
-		reticle2.transform.RotateAround (reticle2.transform.position, transform.right, -1 * analog2.y);
 	}
 	private void OnFire2 ()
 	{
