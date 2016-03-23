@@ -67,7 +67,18 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, value);
 		}
 	}
-	public bool resetOnRelease;
+	private float _floatValue;
+	[System.Serializable]public enum ControlMethod
+	{
+		None,
+		Gradual,
+		Instant
+	}
+	public ControlMethod whileControlled;
+	public float controlledSpeed;
+	public ControlMethod whileReleased;
+	public float releasedSpeed;
+	private bool controlled = false;
 	public Sprite displaySprite;
 	public Sprite GetDisplaySprite ()
 	{
@@ -75,6 +86,8 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	}
 	public virtual void OnControl (Ray control)
 	{
+		controlled = true;
+
 		//planar intersection
 		Plane plane = new Plane (planarPoints [0], planarPoints [1], planarPoints [2]);
 		float rayDistance;
@@ -117,15 +130,30 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		value = Mathf.Clamp (value, floatMin, floatMax);
 
 		//output
-		floatValue = value;
+		if(whileControlled == ControlMethod.Instant)floatValue = value;
+		if(whileControlled == ControlMethod.Gradual)_floatValue = value;
 	}
 	public virtual void OnRelease (Ray control)
 	{
-		if(resetOnRelease)floatValue = floatDefault;
+		controlled = false;
+
+		if(whileReleased == ControlMethod.Instant)floatValue = floatDefault;
+		if(whileReleased == ControlMethod.Gradual)_floatValue = floatDefault;
 	}
 
 	void Start ()
 	{
 		floatValue = floatDefault;
+	}
+	void FixedUpdate ()
+	{
+		if(controlled) 
+		{
+			if(whileControlled == ControlMethod.Gradual)floatValue = Mathf.Lerp (floatValue, _floatValue, controlledSpeed * Time.fixedDeltaTime);
+		} 
+		else 
+		{
+			if(whileReleased == ControlMethod.Gradual)floatValue = Mathf.Lerp (floatValue, _floatValue, releasedSpeed * Time.fixedDeltaTime);
+		}
 	}
 }
