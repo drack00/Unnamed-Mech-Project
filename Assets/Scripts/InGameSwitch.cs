@@ -16,6 +16,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	}
 	public Axis primaryAxis;
 	public Axis secondaryAxis;
+	public bool invertControls;
 	private Vector3[] planarPoints
 	{
 		get
@@ -141,6 +142,9 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			colliderMax = GetComponent<Collider> ().bounds.max.z;
 			break;
 		}
+
+		//invert controls if required
+		if(invertControls)distance = -1 * distance;
 
 		//calculate value (ratio of distance between extemes, multiplied by float range)
 		value = (distance / (colliderMax - colliderMin)) * (floatMax - floatMin);
