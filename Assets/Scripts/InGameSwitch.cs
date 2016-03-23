@@ -84,7 +84,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	{
 		return displaySprite;
 	}
-	public virtual void OnControl (Ray control)
+	public virtual void OnControl (Ray control, out Vector3 reticlePosition)
 	{
 		controlled = true;
 
@@ -132,8 +132,10 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		//output
 		if(whileControlled == ControlMethod.Instant)floatValue = value;
 		if(whileControlled == ControlMethod.Gradual)_floatValue = value;
+
+		reticlePosition = planarPosition;
 	}
-	public virtual void OnRelease (Ray control)
+	public virtual void OnRelease ()
 	{
 		controlled = false;
 

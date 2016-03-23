@@ -13,6 +13,10 @@ public class Player : MonoBehaviour
 	}
 		
 	public GameObject reticle1;
+	public Transform reticle1Display;
+	public Vector3 reticle1DefaultPosition;
+	public Vector3 reticle1DefaultScale;
+	public Vector3 reticle1ControlScale;
 	public Image reticle1HoverDisplay;
 	public GameObject reticle1ControlDisplay;
 	public Ray reticle1Ray
@@ -54,7 +58,7 @@ public class Player : MonoBehaviour
 			{
 				if(!fire1)
 				{
-					if(_reticle1Control != null)_reticle1Control.OnRelease (reticle1Ray);
+					if(_reticle1Control != null)_reticle1Control.OnRelease ();
 
 					reticle1HoverDisplay.gameObject.SetActive (value != null);
 					if(value != null)reticle1HoverDisplay.sprite = value.GetDisplaySprite ();
@@ -89,6 +93,10 @@ public class Player : MonoBehaviour
 	}
 
 	public GameObject reticle2;
+	public Transform reticle2Display;
+	public Vector3 reticle2DefaultPosition;
+	public Vector3 reticle2DefaultScale;
+	public Vector3 reticle2ControlScale;
 	public Image reticle2HoverDisplay;
 	public GameObject reticle2ControlDisplay;
 	public Ray reticle2Ray
@@ -130,7 +138,7 @@ public class Player : MonoBehaviour
 			{
 				if(!fire2)
 				{
-					if(_reticle2Control != null)_reticle2Control.OnRelease (reticle2Ray);
+					if(_reticle2Control != null)_reticle2Control.OnRelease ();
 
 					reticle2HoverDisplay.gameObject.SetActive (value != null);
 					if(value != null)reticle2HoverDisplay.sprite = value.GetDisplaySprite ();
@@ -174,21 +182,37 @@ public class Player : MonoBehaviour
 	{
 		Cursor.visible = false;
 	}
-
-	void FixedUpdate ()
-	{
-		if(reticle1Control != null)reticle1Control.OnControl (reticle1Ray);
-		if(reticle2Control != null)reticle2Control.OnControl (reticle2Ray);
-	}
-
+		
 	void Update ()
 	{
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.up, analog1.x);
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.right, -1 * analog1.y);
 		reticle1Control = reticle1Hover;
+		Vector3 reticle1Position = reticle1DefaultPosition;
+		if (reticle1Control != null) 
+		{
+			reticle1Control.OnControl (reticle1Ray, out reticle1Position);
+			reticle1Display.localScale = reticle1ControlScale;
+		} 
+		else 
+		{
+			reticle1Display.localScale = reticle1DefaultScale;
+		}
+		reticle1Display.localPosition = reticle1Position;
 
 		reticle2.transform.RotateAround (reticle2.transform.position, transform.up, analog2.x);
 		reticle2.transform.RotateAround (reticle2.transform.position, transform.right, analog2.y);
 		reticle2Control = reticle2Hover;
+		Vector3 reticle2Position = reticle2DefaultPosition;
+		if(reticle2Control != null)
+		{
+			reticle2Control.OnControl (reticle2Ray, out reticle2Position);
+			reticle2Display.localScale = reticle2ControlScale;
+		} 
+		else 
+		{
+			reticle2Display.localScale = reticle2DefaultScale;
+		}
+		reticle2Display.localPosition = reticle2Position;
 	}
 }

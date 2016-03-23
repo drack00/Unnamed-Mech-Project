@@ -9,12 +9,15 @@ public class InGameButton : MonoBehaviour, IInGameInput
 	{
 		return displaySprite;
 	}
-	public virtual void OnControl (Ray control)
+	public bool controlled = false;
+	public virtual void OnControl (Ray control, out Vector3 reticlePosition)
 	{
-		
+		controlled = true;
+
+		reticlePosition = transform.position;
 	}
-	public virtual void OnRelease (Ray control)
+	public virtual void OnRelease ()
 	{
-		
+		controlled = false;
 	}
 }
