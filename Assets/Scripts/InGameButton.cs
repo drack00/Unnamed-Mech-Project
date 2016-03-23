@@ -4,17 +4,17 @@ using System.Collections;
 [RequireComponent (typeof (Collider))]
 public class InGameButton : MonoBehaviour, IInGameInput
 {
-	private Control control;
-	public Control GetControl ()
+	public Sprite displaySprite;
+	public Sprite GetDisplaySprite ()
 	{
-		return control;
+		return displaySprite;
 	}
-	public virtual void OnClick (Control _control)
+	public virtual void OnControl (Ray control)
 	{
-		control = _control;
+		
 	}
-	public virtual void OnRelease ()
+	public virtual void OnRelease (Ray control)
 	{
-		control = Control.None;
+		
 	}
 }

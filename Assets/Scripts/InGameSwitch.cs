@@ -67,55 +67,19 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, value);
 		}
 	}
-	private float _floatValue;
-	public bool gradualChange;
-	public float floatSpeed;
-	public enum Reset
+	public bool resetOnRelease;
+	public Sprite displaySprite;
+	public Sprite GetDisplaySprite ()
 	{
-		None,
-		Instant,
-		Gradual
+		return displaySprite;
 	}
-	public Reset reset;
-	public float floatResetSpeed;
-	private bool releventControl
+	public virtual void OnControl (Ray control)
 	{
-		get
-		{
-			return 	(control == Control.Fire1 && Player.singleton.fire1) || 
-					(control == Control.Fire2 && Player.singleton.fire2);
-		}
-	}
-	private GameObject releventReticle
-	{
-		get
-		{
-			if(control == Control.Fire1)return Player.singleton.reticle1;
-			if(control == Control.Fire2)return Player.singleton.reticle2;
-			return null;
-		}
-	}
-	private IEnumerator MoveSwitch ()
-	{
-		while(releventControl)
-		{
-			if (gradualChange)_floatValue = GetCursorPositionValue ();
-			else floatValue = GetCursorPositionValue ();
-			yield return null;
-		}
-
-		OnRelease ();
-	}
-	private float GetCursorPositionValue ()
-	{
-		float value = 0.0f;
-
 		//planar intersection
-		Ray ray = new Ray (releventReticle.transform.position, releventReticle.transform.TransformDirection(Vector3.forward));
 		Plane plane = new Plane (planarPoints [0], planarPoints [1], planarPoints [2]);
 		float rayDistance;
-		plane.Raycast (ray, out rayDistance);
-		Vector3 planarPosition = ray.GetPoint (rayDistance);
+		plane.Raycast (control, out rayDistance);
+		Vector3 planarPosition = control.GetPoint (rayDistance);
 
 		//position of intersection relative to transform origin
 		Vector3 relativePosition = transform.InverseTransformPoint (planarPosition);
@@ -147,46 +111,21 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		if(invertControls)distance = -1 * distance;
 
 		//calculate value (ratio of distance between extemes, multiplied by float range)
-		value = (distance / (colliderMax - colliderMin)) * (floatMax - floatMin);
+		float value = (distance / (colliderMax - colliderMin)) * (floatMax - floatMin);
 
 		//clamp output
 		value = Mathf.Clamp (value, floatMin, floatMax);
 
-		return value;
+		//output
+		floatValue = value;
 	}
-
-	private Control control;
-	public Control GetControl ()
+	public virtual void OnRelease (Ray control)
 	{
-		return control;
-	}
-	public virtual void OnClick (Control _control)
-	{
-		control = _control;
-
-		StartCoroutine (MoveSwitch ());
-	}
-	public virtual void OnRelease ()
-	{
-		control = Control.None;
-
-		if (reset == Reset.Gradual)_floatValue = floatDefault;
-		else if(reset == Reset.Instant)floatValue = floatDefault;
+		if(resetOnRelease)floatValue = floatDefault;
 	}
 
 	void Start ()
 	{
 		floatValue = floatDefault;
-	}
-	void Update ()
-	{
-		if(releventControl)
-		{
-			if(gradualChange)floatValue = Mathf.Lerp (floatValue, _floatValue, floatSpeed * Time.deltaTime);
-		}
-		else
-		{
-			if(reset == Reset.Gradual)floatValue = Mathf.Lerp (floatValue, _floatValue, floatResetSpeed * Time.deltaTime);
-		}
 	}
 }
