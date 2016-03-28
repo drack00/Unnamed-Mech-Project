@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 		}
 	}
 		
+	public int locationIndex;
+		
 	public GameObject reticle1;
 	public Transform reticle1Display;
 	public Vector3 reticle1DefaultPosition;
@@ -176,11 +178,6 @@ public class Player : MonoBehaviour
 	{
 		Gizmos.DrawRay (reticle1Ray);
 		Gizmos.DrawRay (reticle2Ray);
-	}
-
-	void Start ()
-	{
-		Cursor.visible = false;
 	}
 		
 	void Update ()

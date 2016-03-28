@@ -14,7 +14,7 @@ public class InGameButton : MonoBehaviour, IInGameInput
 	{
 		controlled = true;
 
-		reticlePosition = transform.position;
+		reticlePosition = transform.localPosition;
 	}
 	public virtual void OnRelease ()
 	{
