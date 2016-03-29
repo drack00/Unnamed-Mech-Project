@@ -86,6 +86,13 @@ public class Player : MonoBehaviour
 			return new Vector2 (x, y);
 		}
 	}
+	public bool thumb1
+	{
+		get
+		{
+			return Input.GetButton ("Thumb1");
+		}
+	}
 	public bool fire1
 	{
 		get
@@ -166,6 +173,13 @@ public class Player : MonoBehaviour
 			return new Vector2 (x, y);
 		}
 	}
+	public bool thumb2
+	{
+		get
+		{
+			return Input.GetButton ("Thumb2");
+		}
+	}
 	public bool fire2
 	{
 		get
@@ -182,6 +196,11 @@ public class Player : MonoBehaviour
 		
 	void Update ()
 	{
+		if(thumb1) 
+		{
+			reticle1.transform.localPosition = Vector3.zero;
+			reticle1.transform.localRotation = Quaternion.identity;
+		}
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.up, analog1.x);
 		reticle1.transform.RotateAround (reticle1.transform.position, transform.right, -1 * analog1.y);
 		reticle1Control = reticle1Hover;
@@ -199,6 +218,11 @@ public class Player : MonoBehaviour
 		}
 		reticle1Display.localPosition = reticle1Position;
 
+		if(thumb2) 
+		{
+			reticle2.transform.localPosition = Vector3.zero;
+			reticle2.transform.localRotation = Quaternion.identity;
+		}
 		reticle2.transform.RotateAround (reticle2.transform.position, transform.up, analog2.x);
 		reticle2.transform.RotateAround (reticle2.transform.position, transform.right, analog2.y);
 		reticle2Control = reticle2Hover;
