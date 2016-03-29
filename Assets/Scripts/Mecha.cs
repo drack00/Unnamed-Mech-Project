@@ -48,6 +48,6 @@ public class Mecha : MonoBehaviour
 
 	void Update ()
 	{
-		
+		Debug.Log ("final " + inputDir);
 	}
 }

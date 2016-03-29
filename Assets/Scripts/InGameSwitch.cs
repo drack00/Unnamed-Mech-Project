@@ -63,7 +63,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			float x = Mathf.InverseLerp (startPoint.x, endPoint.x, shaft.localPosition.x);
 			float y = Mathf.InverseLerp (startPoint.y, endPoint.y, shaft.localPosition.y);
 			float z = Mathf.InverseLerp (startPoint.z, endPoint.z, shaft.localPosition.z);
-			return new Vector3 (x, y, z).magnitude;
+			return Mathf.Lerp(floatMin, floatMax, new Vector3 (x, y, z).magnitude);
 		}
 		private set
 		{
