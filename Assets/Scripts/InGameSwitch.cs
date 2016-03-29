@@ -17,7 +17,6 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	public Axis secondaryAxis;
 	public float lowerLimit;
 	public float upperLimit;
-	public bool invertControls;
 	private Plane plane
 	{
 		get
@@ -51,6 +50,9 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 			return new Plane (_planarPoints [0], _planarPoints [1], _planarPoints [2]);
 		}
 	}
+	public bool invertControls;
+	public bool snap;
+	public float snapTo;
 	public float floatDefault;
 	public float floatMin;
 	public float floatMax;
@@ -66,6 +68,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		private set
 		{
 			float _value = Mathf.InverseLerp(floatMin, floatMax, value);
+			if(snap)_value = Mathf.Round(_value / snapTo) * snapTo;
 			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, _value);
 		}
 	}
@@ -117,7 +120,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		distance = Mathf.Clamp (distance, lowerLimit, upperLimit);
 
 		//calculate value (ratio of distance between extemes, multiplied by float range)
-		float _value = Mathf.InverseLerp(lowerLimit, upperLimit, distance);Debug.Log(_value);
+		float _value = Mathf.InverseLerp(lowerLimit, upperLimit, distance);
 		float value = Mathf.Lerp(floatMin, floatMax, _value);
 
 		//output
