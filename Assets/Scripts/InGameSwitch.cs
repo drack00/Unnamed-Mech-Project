@@ -68,7 +68,6 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		private set
 		{
 			float _value = Mathf.InverseLerp(floatMin, floatMax, value);
-			if(snap)_value = Mathf.Round(_value / snapTo) * snapTo;
 			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, _value);
 		}
 	}
@@ -121,6 +120,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 
 		//calculate value (ratio of distance between extemes, multiplied by float range)
 		float _value = Mathf.InverseLerp(lowerLimit, upperLimit, distance);
+		if(snap)_value = Mathf.Round(_value / snapTo) * snapTo;
 		float value = Mathf.Lerp(floatMin, floatMax, _value);
 
 		//output
