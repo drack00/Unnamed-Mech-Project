@@ -7,7 +7,6 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	public Transform shaft;
 	public Vector3 startPoint;
 	public Vector3 endPoint;
-
 	[System.Serializable]public enum Axis
 	{
 		X,
@@ -16,8 +15,10 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 	}
 	public Axis primaryAxis;
 	public Axis secondaryAxis;
+	public float lowerLimit;
+	public float upperLimit;
 	public bool invertControls;
-	private Vector3[] planarPoints
+	private Plane plane
 	{
 		get
 		{
@@ -47,7 +48,7 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 				_planarPoints [2] = transform.TransformPoint(Vector3.forward);
 				break;
 			}
-			return _planarPoints;
+			return new Plane (_planarPoints [0], _planarPoints [1], _planarPoints [2]);
 		}
 	}
 	public float floatDefault;
@@ -64,7 +65,8 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		}
 		private set
 		{
-			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, value);
+			float _value = Mathf.InverseLerp(floatMin, floatMax, value);
+			shaft.localPosition = Vector3.Lerp (startPoint, endPoint, _value);
 		}
 	}
 	private float _floatValue;
@@ -89,51 +91,38 @@ public class InGameSwitch : MonoBehaviour, IInGameInput
 		controlled = true;
 
 		//planar intersection
-		Plane plane = new Plane (planarPoints [0], planarPoints [1], planarPoints [2]);
 		float rayDistance;
 		plane.Raycast (control, out rayDistance);
-		Vector3 planarPosition = control.GetPoint (rayDistance);
+		reticlePosition = control.GetPoint (rayDistance);
 
-		//position of intersection relative to transform origin
-		Vector3 relativePosition = transform.InverseTransformPoint (planarPosition);
-
-		//distance and bounds along primary axis
+		//distance along primary axis
 		float distance = 0.0f;
-		float colliderMin = 0.0f;
-		float colliderMax = 0.0f;
 		switch(primaryAxis)
 		{
 		case Axis.X:
-			distance = relativePosition.x;
-			colliderMin = GetComponent<Collider> ().bounds.min.x;
-			colliderMax = GetComponent<Collider> ().bounds.max.x;
+			distance = transform.InverseTransformPoint (reticlePosition).x;
 			break;
 		case Axis.Y:
-			distance = relativePosition.y;
-			colliderMin = GetComponent<Collider> ().bounds.min.y;
-			colliderMax = GetComponent<Collider> ().bounds.max.y;
+			distance = transform.InverseTransformPoint (reticlePosition).y;
 			break;
 		case Axis.Z:
-			distance = relativePosition.z;
-			colliderMin = GetComponent<Collider> ().bounds.min.z;
-			colliderMax = GetComponent<Collider> ().bounds.max.z;
+			distance = transform.InverseTransformPoint (reticlePosition).z;
 			break;
 		}
 
 		//invert controls if required
 		if(invertControls)distance = -1 * distance;
 
-		//calculate value (ratio of distance between extemes, multiplied by float range)
-		float value = (distance / (colliderMax - colliderMin)) * (floatMax - floatMin);
+		//clamp distance
+		distance = Mathf.Clamp (distance, lowerLimit, upperLimit);
 
-		//clamp output
-		value = Mathf.Clamp (value, floatMin, floatMax);
+		//calculate value (ratio of distance between extemes, multiplied by float range)
+		float _value = Mathf.InverseLerp(lowerLimit, upperLimit, distance);Debug.Log(_value);
+		float value = Mathf.Lerp(floatMin, floatMax, _value);
 
 		//output
 		if(whileControlled == ControlMethod.Instant)floatValue = value;
 		if(whileControlled == ControlMethod.Gradual)_floatValue = value;
-
-		reticlePosition = planarPosition;
 	}
 	public virtual void OnRelease ()
 	{

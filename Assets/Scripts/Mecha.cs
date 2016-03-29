@@ -34,9 +34,11 @@ public class Mecha : MonoBehaviour
 		get
 		{
 			float xBias = 0.0f;
+			float yBias = 0.0f;
 			if(leftBiasSign != InputBiasSign.Negative)xBias += -1.0f * leftBiasInput.floatValue;
 			if(rightBiasSign != InputBiasSign.Negative)xBias += rightBiasInput.floatValue;
-			float yBias = ((2.0f * leftBiasInput.floatValue) * (2.0f * rightBiasInput.floatValue)) / 2.0f;
+			if(leftBiasSign != InputBiasSign.Negative && rightBiasSign != InputBiasSign.Negative)yBias = ((2.0f * leftBiasInput.floatValue) * (2.0f * rightBiasInput.floatValue)) / 2.0f;
+			else yBias = -1 * (Mathf.Abs(2.0f * leftBiasInput.floatValue) * Mathf.Abs(2.0f * rightBiasInput.floatValue)) / 2.0f;
 
 			Vector2 _inputDir = new Vector2 (xBias, yBias);
 
@@ -46,6 +48,6 @@ public class Mecha : MonoBehaviour
 
 	void Update ()
 	{
-		Debug.Log ("final " + inputDir);
+		
 	}
 }

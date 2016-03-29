@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
 		}
 	}
 		
-	public int locationIndex;
+	//public int locationIndex;
 		
 	public GameObject reticle1;
 	public Transform reticle1Display;
@@ -188,7 +188,9 @@ public class Player : MonoBehaviour
 		Vector3 reticle1Position = reticle1DefaultPosition;
 		if (reticle1Control != null) 
 		{
-			reticle1Control.OnControl (reticle1Ray, out reticle1Position);
+			Vector3 _reticle1Position;
+			reticle1Control.OnControl (reticle1Ray, out _reticle1Position);
+			reticle1Position = reticle1.transform.InverseTransformPoint(_reticle1Position);
 			reticle1Display.localScale = reticle1ControlScale;
 		} 
 		else 
@@ -203,7 +205,9 @@ public class Player : MonoBehaviour
 		Vector3 reticle2Position = reticle2DefaultPosition;
 		if(reticle2Control != null)
 		{
-			reticle2Control.OnControl (reticle2Ray, out reticle2Position);
+			Vector3 _reticle2Position;
+			reticle2Control.OnControl (reticle2Ray, out _reticle2Position);
+			reticle2Position = reticle2.transform.InverseTransformPoint(_reticle2Position);
 			reticle2Display.localScale = reticle2ControlScale;
 		} 
 		else 
