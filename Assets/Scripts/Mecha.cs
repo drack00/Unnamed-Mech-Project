@@ -52,9 +52,19 @@ public class Mecha : MonoBehaviour
 	}
 
 	public float moveSpeed;
+	public GameObject target;
 
 	void Update ()
-	{Debug.Log (inputDir);
-		//transform.position += new Vector3(inputDir.x, 0.0f, inputDir.y) * moveSpeed;
+	{
+		if(target != null) 
+		{
+			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.deltaTime);
+			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.deltaTime);
+		}
+		else 
+		{
+			transform.RotateAround (transform.position, transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.deltaTime);
+			transform.position += transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.deltaTime;
+		}
 	}
 }
