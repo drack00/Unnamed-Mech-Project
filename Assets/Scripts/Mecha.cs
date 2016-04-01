@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Mecha : MonoBehaviour 
 {
@@ -52,19 +53,67 @@ public class Mecha : MonoBehaviour
 	}
 
 	public float moveSpeed;
-	public GameObject target;
+	public List<GameObject> targets
+	{
+		get
+		{
+			List<GameObject> _targets = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Target"));
 
-	void Update ()
+			_targets.Sort (delegate(GameObject x, GameObject y) {
+				Vector3 forward = transform.TransformDirection (Vector3.forward);
+				Vector3 n = transform.TransformDirection (Vector3.up);
+				Vector3 xPosition = transform.position - x.transform.position;
+				Vector3 yPosition = transform.position - y.transform.position;
+				float xAngle = MathStuff.FullAngleBetween (forward, xPosition, n);
+				float yAngle = MathStuff.FullAngleBetween (forward, yPosition, n);
+				return xAngle.CompareTo (yAngle);});
+
+			return _targets;
+		}
+	}
+	private GameObject _target = null;
+	public GameObject target
+	{
+		get
+		{
+			return _target;
+		}
+		private set
+		{
+			Vector3 forward = transform.TransformDirection (Vector3.forward);
+			Vector3 n = transform.TransformDirection (Vector3.up);
+			Vector3 xPosition = transform.position - value.transform.position;
+			float xAngle = MathStuff.FullAngleBetween (forward, xPosition, n);
+			Debug.Log (xAngle);
+
+			_target = value;
+
+			if (_target != null) 
+			{
+				transform.LookAt (_target.transform.position);
+			}
+		}
+	}
+	public void ChangeTarget (bool nextTarget)
+	{
+		if(targets.Count > 0)
+		{
+			if(target != null && targets.Count > 1) target = nextTarget ? targets[1] : targets[targets.Count - 1];
+			else target = targets [0];
+		}
+	}
+
+	void FixedUpdate ()
 	{
 		if(target != null) 
 		{
-			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.deltaTime);
-			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.deltaTime);
+			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.fixedDeltaTime);
+			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
 		}
 		else 
 		{
-			transform.RotateAround (transform.position, transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.deltaTime);
-			transform.position += transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.deltaTime;
+			transform.Rotate (transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.fixedDeltaTime);
+			transform.position += transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.fixedDeltaTime;
 		}
 	}
 }
