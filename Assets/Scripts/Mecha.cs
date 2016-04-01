@@ -80,12 +80,6 @@ public class Mecha : MonoBehaviour
 		}
 		private set
 		{
-			Vector3 forward = transform.TransformDirection (Vector3.forward);
-			Vector3 n = transform.TransformDirection (Vector3.up);
-			Vector3 xPosition = transform.position - value.transform.position;
-			float xAngle = MathStuff.FullAngleBetween (forward, xPosition, n);
-			Debug.Log (xAngle);
-
 			_target = value;
 
 			if (_target != null) 
@@ -107,7 +101,8 @@ public class Mecha : MonoBehaviour
 	{
 		if(target != null) 
 		{
-			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.fixedDeltaTime);
+			float rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (transform.position, target.transform.position));
+			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * rotSpeed * Time.fixedDeltaTime);
 			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
 		}
 		else 
