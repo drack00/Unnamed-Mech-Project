@@ -53,6 +53,7 @@ public class Mecha : MonoBehaviour
 	}
 
 	public float moveSpeed;
+	public float rotSpeed;
 	public List<GameObject> targets
 	{
 		get
@@ -71,23 +72,7 @@ public class Mecha : MonoBehaviour
 			return _targets;
 		}
 	}
-	private GameObject _target = null;
-	public GameObject target
-	{
-		get
-		{
-			return _target;
-		}
-		private set
-		{
-			_target = value;
-
-			if (_target != null) 
-			{
-				transform.LookAt (_target.transform.position);
-			}
-		}
-	}
+	private GameObject target;
 	public void ChangeTarget (bool nextTarget)
 	{
 		if(targets.Count > 0)
@@ -101,13 +86,15 @@ public class Mecha : MonoBehaviour
 	{
 		if(target != null) 
 		{
-			float rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (transform.position, target.transform.position));
-			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * rotSpeed * Time.fixedDeltaTime);
+			transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.LookRotation(target.transform.position - transform.position), rotSpeed * Time.fixedDeltaTime);
+
+			float _rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (transform.position, target.transform.position));
+			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * _rotSpeed * Time.fixedDeltaTime);
 			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
 		}
 		else 
 		{
-			transform.Rotate (transform.TransformDirection (Vector3.up), inputDir.x * moveSpeed * Time.fixedDeltaTime);
+			transform.Rotate (transform.TransformDirection (Vector3.up), inputDir.x * rotSpeed * Time.fixedDeltaTime);
 			transform.position += transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.fixedDeltaTime;
 		}
 	}
