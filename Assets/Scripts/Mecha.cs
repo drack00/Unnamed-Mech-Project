@@ -77,7 +77,20 @@ public class Mecha : MonoBehaviour
 	{
 		if(targets.Count > 0)
 		{
-			if(target != null && targets.Count > 1) target = nextTarget ? targets[1] : targets[targets.Count - 1];
+			if (target != null && targets.Count > 1) 
+			{
+				for(int i = 0; i < targets.Count; i++)
+				{
+					if(target == targets[i])
+					{
+						int index = nextTarget ? i + 1 : i - 1;
+						if(index < 0)index = targets.Count - 1;
+						if(index > targets.Count - 1)index = 0;
+						target = targets [index];
+						break;
+					}
+				}
+			}
 			else target = targets [0];
 		}
 	}
