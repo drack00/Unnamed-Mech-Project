@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	[System.Serializable]public struct Reticle
+	[System.Serializable]public class Reticle
 	{
 		public Transform transform;
 		public GameObject container;
@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
 		public Transform referenceRet;
 		public string analogHorizontalInput;
 		public string analogVerticalInput;
+		public float speed;
 		private Vector2 analog
 		{
 			get
@@ -60,14 +61,20 @@ public class Player : MonoBehaviour
 			}
 		}
 		public string grabInput;
+		public bool useGrabAxis;
+		public bool invertGrabAxis;
 		private bool grab
 		{
 			get
 			{
+				if(useGrabAxis)
+				{
+					if(invertGrabAxis)return Mathf.Approximately(Input.GetAxisRaw (grabInput), -1.0f);
+					return Mathf.Approximately(Input.GetAxisRaw (grabInput), 1.0f);
+				}
 				return Input.GetButton (grabInput);
 			}
 		}
-		public float speed;
 		private Ray ray
 		{
 			get
@@ -75,7 +82,7 @@ public class Player : MonoBehaviour
 				return new Ray (container.transform.position, container.transform.TransformDirection (Vector3.forward));
 			}
 		}
-		private IInGameInput hover
+		public IInGameInput hover
 		{
 			get
 			{
@@ -95,32 +102,28 @@ public class Player : MonoBehaviour
 			}
 		}
 		private IInGameInput _control;
-		private IInGameInput control
+		public IInGameInput control
 		{
 			get
 			{
 				return _control;
 			}
-			set
+			private set
 			{
-				if(!binding)
+				if(!grab)
 				{
-					if(!grab)
-					{
-						if(_control != null)_control.OnRelease ();
+					if(_control != null)_control.OnRelease ();
 
-						hoverDisplay.gameObject.SetActive (value != null);
-						if(value != null)hoverDisplay.sprite = value.GetDisplaySprite ();
-						else hoverDisplay.sprite = null;
-						controlDisplay.SetActive (false);
+					hoverDisplay.gameObject.SetActive (value != null);
+					if(value != null)hoverDisplay.sprite = value.GetDisplaySprite ();
+					else hoverDisplay.sprite = null;
+					controlDisplay.SetActive (false);
 
-						value = null;
-					} 
-					else controlDisplay.SetActive (true);
+					value = null;
+				} 
+				else controlDisplay.SetActive (true);
 
-					if(_control == null || !grab)_control = value;
-				}
-				else if(grab)container.transform.rotation = referenceRet.rotation;
+				if(_control == null || !grab)_control = value;
 			}
 		}
 		public void Update (float deltaTime)
@@ -135,7 +138,12 @@ public class Player : MonoBehaviour
 				container.transform.RotateAround (container.transform.position, transform.TransformDirection(Vector3.up), analog.x * speed * deltaTime);
 				container.transform.RotateAround (container.transform.position, transform.TransformDirection(Vector3.right), analog.y * speed * deltaTime);
 			}
-			control = hover;
+			if(binding)
+			{
+				control = null;
+				if(grab)container.transform.rotation = referenceRet.rotation;
+			}
+			else control = hover;
 			Vector3 containerPosition = defaultPosition;
 			if (control != null) 
 			{
@@ -151,11 +159,21 @@ public class Player : MonoBehaviour
 	}
 
 	public Reticle grab1;
+	public Reticle[] shortcuts1;
 	public Reticle grab2;
+	public Reticle[] shortcuts2;
 
 	void Update ()
 	{
 		grab1.Update (Time.deltaTime);
+		foreach(Reticle ret in shortcuts1)
+		{
+			ret.Update (Time.deltaTime);
+		}
 		grab2.Update (Time.deltaTime);
+		foreach(Reticle ret in shortcuts2)
+		{
+			ret.Update (Time.deltaTime);
+		}
 	}
 }

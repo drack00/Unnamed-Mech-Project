@@ -102,7 +102,7 @@ public class Mecha : MonoBehaviour
 			transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.LookRotation(target.transform.position - transform.position), rotSpeed * Time.fixedDeltaTime);
 
 			float _rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (transform.position, target.transform.position));
-			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), inputDir.x * _rotSpeed * Time.fixedDeltaTime);
+			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), -1 * inputDir.x * _rotSpeed * Time.fixedDeltaTime);
 			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
 		}
 		else 
