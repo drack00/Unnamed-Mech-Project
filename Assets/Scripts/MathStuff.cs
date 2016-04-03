@@ -10,17 +10,12 @@ public static class MathStuff
 
 		float signedAngle = angle * sign;
 
-		//float angle360 = (signedAngle + 180) % 360;
-
 		return signedAngle * Mathf.Deg2Rad;
 	}
 
 	public static float FullAngleBetween (Vector3 a, Vector3 b, Vector3 n)
 	{
-		float angle = Vector3.Angle (a, b);
-		float sign = Mathf.Sign (Vector3.Dot (n, Vector3.Cross (a, b)));
-
-		float signedAngle = angle * sign;
+		float signedAngle = SignedAngleBetween (a, b, n);
 
 		float angle360 = (signedAngle + 180) % 360;
 

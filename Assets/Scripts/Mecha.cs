@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Mecha : MonoBehaviour 
+public class Mecha : MonoBehaviour
 {
 	public InGameSwitch leftBiasInput;
 	public InGameSwitch rightBiasInput;
@@ -54,13 +54,13 @@ public class Mecha : MonoBehaviour
 
 	public float moveSpeed;
 	public float rotSpeed;
-	public List<GameObject> targets
+	public List<Target> targets
 	{
 		get
 		{
-			List<GameObject> _targets = new List<GameObject> (GameObject.FindGameObjectsWithTag ("Target"));
+			List<Target> _targets = new List<Target> (FindObjectsOfType<Target> ());
 
-			_targets.Sort (delegate(GameObject x, GameObject y) {
+			_targets.Sort (delegate(Target x, Target y) {
 				Vector3 forward = transform.TransformDirection (Vector3.forward);
 				Vector3 n = transform.TransformDirection (Vector3.up);
 				Vector3 xPosition = transform.position - x.transform.position;
@@ -72,7 +72,7 @@ public class Mecha : MonoBehaviour
 			return _targets;
 		}
 	}
-	private GameObject target;
+	private Target target;
 	public void ChangeTarget (bool nextTarget)
 	{
 		if(targets.Count > 0)
@@ -95,20 +95,42 @@ public class Mecha : MonoBehaviour
 		}
 	}
 
+	public float reflectSpeed;
+	void OnCollisionEnter (Collision other)
+	{
+		if(other.gameObject.GetComponent<Mecha> () != null)
+		{
+			//Mecha mecha = collision.gameObject.GetComponent<Mecha> ();
+			Vector3 reflect = Vector3.Reflect (transform.TransformDirection (Vector3.forward), other.contacts [0].normal);
+			transform.position += reflect * reflectSpeed;
+		}
+		if(other.gameObject.GetComponent<Enviroment> () != null)
+		{
+			//Enviroment enviroment = collision.gameObject.GetComponent<Enviroment> ();
+			Vector3 reflect = Vector3.Reflect (transform.TransformDirection (Vector3.forward), other.contacts [0].normal);
+			transform.position += reflect * reflectSpeed;
+		}
+	}
+		
 	void FixedUpdate ()
 	{
+		Transform _transform = new GameObject ().transform;
+		_transform.position = transform.position;
+		_transform.rotation = transform.rotation;
 		if(target != null) 
 		{
-			transform.rotation = Quaternion.RotateTowards (transform.rotation, Quaternion.LookRotation(target.transform.position - transform.position), rotSpeed * Time.fixedDeltaTime);
-
-			float _rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (transform.position, target.transform.position));
-			transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), -1 * inputDir.x * _rotSpeed * Time.fixedDeltaTime);
-			transform.position = Vector3.MoveTowards (transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
+			_transform.rotation = Quaternion.RotateTowards (_transform.rotation, Quaternion.LookRotation(target.transform.position - _transform.position), rotSpeed * Time.fixedDeltaTime);
+			float _rotSpeed = (moveSpeed * 360.0f) / (2 * Mathf.PI * Vector3.Distance (_transform.position, target.transform.position));
+			_transform.RotateAround (target.transform.position, target.transform.TransformDirection (Vector3.up), -1 * inputDir.x * _rotSpeed * Time.fixedDeltaTime);
+			_transform.position = Vector3.MoveTowards (_transform.position, target.transform.position, inputDir.y * moveSpeed * Time.fixedDeltaTime);
 		}
 		else 
 		{
-			transform.Rotate (transform.TransformDirection (Vector3.up), inputDir.x * rotSpeed * Time.fixedDeltaTime);
-			transform.position += transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.fixedDeltaTime;
+			_transform.Rotate (transform.TransformDirection (Vector3.up), inputDir.x * rotSpeed * Time.fixedDeltaTime);
+			_transform.position += _transform.TransformDirection (Vector3.forward) * inputDir.y * moveSpeed * Time.fixedDeltaTime;
 		}
+		GetComponent<Rigidbody> ().MovePosition (_transform.position);
+		GetComponent<Rigidbody> ().MoveRotation (_transform.rotation);
+		Destroy (_transform.gameObject);
 	}
 }

@@ -163,17 +163,17 @@ public class Player : MonoBehaviour
 	public Reticle grab2;
 	public Reticle[] shortcuts2;
 
-	void Update ()
+	void FixedUpdate ()
 	{
-		grab1.Update (Time.deltaTime);
+		grab1.Update (Time.fixedDeltaTime);
 		foreach(Reticle ret in shortcuts1)
 		{
-			ret.Update (Time.deltaTime);
+			ret.Update (Time.fixedDeltaTime);
 		}
-		grab2.Update (Time.deltaTime);
+		grab2.Update (Time.fixedDeltaTime);
 		foreach(Reticle ret in shortcuts2)
 		{
-			ret.Update (Time.deltaTime);
+			ret.Update (Time.fixedDeltaTime);
 		}
 	}
 }
